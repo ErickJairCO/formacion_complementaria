@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../services/firebase_service.dart';
 
 class Contador extends StatefulWidget {
   @override
@@ -6,6 +9,51 @@ class Contador extends StatefulWidget {
 }
 
 class _Contador extends State<Contador>{
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  AuthUser aU = AuthUser();
+
+  List<String> tipo = [];
+  List<String> actividad = [];
+  List<String> horas = [];
+
+  void _cargaData() async {
+    String? uid = await aU.getCurrentUserUid();
+    QuerySnapshot hdoc = await db.collection("users").doc('$uid')
+        .collection("HorasComplementarias").get();
+
+    for(int j=0; j<hdoc.docs.length; j++){
+      Map<String, dynamic> campo = hdoc.docs.elementAt(j).data() as Map<String, dynamic>;
+      setState(() {
+        tipo.add(campo["Nombre"]);
+        print('Insercion de tipo: ' + tipo[j]);
+        actividad.add(campo["Actividad"]);
+        print('Insercion de Actividad: ' + actividad[j]);
+        horas.add(campo["Horas"]);
+      });
+    }
+  }
+
+  List<DataRow> _cargaLista(){
+    List<DataRow> datos = [];
+    for (int i=0; i<tipo.length; i++){
+      datos.add(
+        DataRow(
+            cells: <DataCell>[
+              DataCell(Text(tipo[i])),
+              DataCell(Text(actividad[i])),
+              DataCell(Text(horas[i])),
+            ]
+        ),
+      );
+    }
+
+    return datos;
+  }
+
+  @override
+  void initState(){
+    _cargaData();
+  }
 
   Widget crearTabla(){
     return DataTable(
@@ -26,36 +74,7 @@ class _Contador extends State<Contador>{
           ),
         )
       ],
-      rows: <DataRow>[
-        DataRow(
-            cells: <DataCell>[
-              DataCell(Text('Cultural')),
-              DataCell(Text('Danza')),
-              DataCell(Text('90')),
-            ]
-        ),
-        DataRow(
-            cells: <DataCell>[
-              DataCell(Text('Deportiva')),
-              DataCell(Text('Fultbol')),
-              DataCell(Text('90')),
-            ]
-        ),
-        DataRow(
-            cells: <DataCell>[
-              DataCell(Text('Conferencia')),
-              DataCell(Text('Cisco y tecnologias de la informacion')),
-              DataCell(Text('20')),
-            ]
-        ),
-        DataRow(
-            cells: <DataCell>[
-              DataCell(Text('Intersemestral')),
-              DataCell(Text('Introduccion a Python')),
-              DataCell(Text('40')),
-            ]
-        )
-      ],
+      rows: _cargaLista(),
     );
   }
 

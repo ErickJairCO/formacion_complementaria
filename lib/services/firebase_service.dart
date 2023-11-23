@@ -1,11 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-//Creacion de la conexion hacia nuestra base de datos
-FirebaseFirestore db = FirebaseFirestore.instance;
 
-Future<List> getUsers() async{
-  List users  = [];
-  CollectionReference coleccionUsers = db.collection('users');
+class AuthUser {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  return users;
+  Future<String?> getCurrentUserUid() async{
+    try{
+      User? user = _auth.currentUser;
+      if(user != null){
+        return user.uid;
+      }else{
+        return null;
+      }
+    }catch(e){
+      print("Error al obtener el UID: $e");
+      return null;
+    }
+  }
 }
