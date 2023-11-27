@@ -16,6 +16,8 @@ class _Contador extends State<Contador>{
   List<String> actividad = [];
   List<String> horas = [];
 
+  int suma = 0;
+
   void _cargaData() async {
     String? uid = await aU.getCurrentUserUid();
     QuerySnapshot hdoc = await db.collection("users").doc('$uid')
@@ -35,6 +37,7 @@ class _Contador extends State<Contador>{
 
   List<DataRow> _cargaLista(){
     List<DataRow> datos = [];
+    //int _suma = 0;
     for (int i=0; i<tipo.length; i++){
       datos.add(
         DataRow(
@@ -45,6 +48,8 @@ class _Contador extends State<Contador>{
             ]
         ),
       );
+      suma += int.parse(horas[i]);
+
     }
 
     return datos;
@@ -81,15 +86,11 @@ class _Contador extends State<Contador>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Resumen de horas'),
-        backgroundColor: Colors.lightBlueAccent,
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           crearTabla(),
-          Text('Horas totales: 180', style: const TextStyle(fontSize: 40)),
+          Text('Horas totales: ${suma}', style: TextStyle(fontSize: 40)),
         ],
       ),
     );
